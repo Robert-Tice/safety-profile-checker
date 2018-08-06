@@ -1,0 +1,315 @@
+------------------------------------------------------
+-- This contains the gnatcheck rules for violations of
+-- FACE (Trademark) Ada 95 safety Extended profile
+------------------------------------------------------
+-- Keep to Ada 95 language profile
+-- For now use -gnat95 switch
+--+R Warnings:gnat95 - ???
+
+--# 1
+--REQUIREMENT:
+--Component use of implementation-defined pragmas (ANSI/ISO/IEC 8652:1995,
+--Section 2.8 (14)) for data structure compositions on FACE Interfaces.
+--
+--Note:    All other uses of implementation-defined pragma directives are
+--         permitted.
+--
+--Note:    Support for pragma directives are compiler implementation-dependent.
+--         A compiler ignores pragma directives it does not recognize.
+--
+--Note:    Use of the language-defined pragmas (e.g., pragma priority,
+--         pragma interface, pragma export, etc.) defined throughtout the
+--         Ada 95 Reference Manual is permitted.
+--
+-- COMMENT: Not sure what this exactly means. Could mean use of things 
+-- that may change the layout of records in a non-portable way like use 
+-- of pragma Scalar_Storage_Order, maybe Object_Size'. So would only 
+-- worry about implementation pragmas that can only exist for an record 
+-- declaration or components of a record ?
+-- Needs further clarification.
+--
+--GNATCHECK RULE:
+
++RForbidden_Pragmas:Scalar_Storage_Order
+
+--==============================================================================
+--# 2
+--REQUIREMENT: Asynchronous Transfer of Control (ANSI/ISO/IEC 8652:1995, Section
+--9.7.4) and dependencies
+--
+--GNATCHECK RULE: 
+--
+-- Although covered by Ravenscar restrictions we specify the rules anyway
+
++RRestrictions:
+    No_Select_Statements,
+    No_Abort_Statements
+
+--==============================================================================
+--# 3
+--REQUIREMENT:
+--Exception handling (ANSI/ISO/IEC 8652:1995, Section 11) - the
+--Exception_Information function
+--
+--Note:      Use of the Exception_Message function is limited to exceptions
+--           raised using the Raise_Exception procedure. Other uses return
+--           messages for which the contents are not defined by the Ada
+--           Reference Manual and are not portable.
+--
+--
+-- Comment: This cannot be reliably checked by an automated tool
+--
+--GNATCHECK RULE: None
+--
+--==============================================================================
+--# 4 (up to 3 rules here)
+--REQUIREMENT:
+--Deallocate in Storage Management (ANSI/ISO/IEC 8652:1995, Section 13.11) (i.e.
+--no usage of the Deallocate procedure, Unchecked_Deallocation, or  memory
+--allocation post startup/initialization)
+--
+-- GNATCHECK RULE: Actually there is three different rules here:
+--
+--- Comment: we need a new rule for detecting the use of 
+--  System.Storage_Pools.Deallocate;
+--
+--- can use Restrictions: No_Dependence => Ada.Unchecked_Deallocation;
+--
+--- Probably can't check "memory allocation post startup/initialization"
+--==============================================================================
+--# 5
+--REQUIREMENT: Wide characters, wide strings, and wide text
+--
+--GNATCHECK RULE: covered except wide text
+
++RRestrictions:No_Wide_Characters -- Includes checking Wide_Strings
+
+-- Comment: Need to understand what is meant by Wide Text since it is
+-- not definied in Ada 95
+
+--
+--==============================================================================
+--# 6
+--REQUIREMENT:
+--Random Number Generation (ANSI/ISO/IEC 8652:1995, Annex A.5.2)
+--
+--COMMENT:
+--
+--GNATCHECK RULE: 
+
++RRestrictions:No_Dependence => Ada.Numerics.Float_Random,
+	       No_dependence=> Ada.Numerics.Discrete_Random
+--==============================================================================
+--# 7
+--REQUIREMENT:
+--Input/output capabilities (ANSI/ISO/IEC 8652:1995, Section 13.13, and Annex
+--A.6, A.7, A.8, A.9, A.10, A.11, A.12, A.13, A.14, and A.15)
+--
+--COMMENT: I would double-check if they really want to exclude all I/O
+--         possibilities
+--
+--GNATCHECK RULE:
+--
++RForbidden_Attributes : Read, Write, Input, Output
+
++RRestrictions: No_Dependence => Ada.Sequential_IO, 
+                No_Dependence => Ada.Direct_IO,
+                No_Dependence => Ada.Storage_IO,
+                No_Dependence => Ada.Text_IO,
+                No_Dependence => Ada.Wide_Text_IO,
+                No_Dependence => Ada.Wide_Wide_Text_IO,
+                No_Dependence => Ada.Streams.Stream_IO,
+                No_Dependence => IO_Exceptions,
+                No_Dependence => Ada.IO_Exceptions,
+                No_Dependence => Ada.Command_Line
+
+-- Comment: Is it a bug that we need to specify both Ada.Text_IO and Text_IO ?
+--          Open ticket
+--==============================================================================
+--# 8
+--REQUIREMENT:
+--Distributed Systems (ANSI/ISO/IEC 8652:1995, Annex E)
+--
+--GNATCHECK RULES:
+--
++RForbidden_Attributes: Partition_Id,
+                        Version,
+                        Body_Version
+
++RForbidden_Pragmas: Shared_Passive,
+                     Remote_Types,
+                     Remote_Call_Interface,
+                     All_Calls_Remote,
+                     Asynchronous
+
++R Restrictions: No_Dependence => System.RPC
+
+--==============================================================================
+--# 9
+--REQUIREMENT:
+--Information Systems (ANSI/ISO/IEC 8652:1995, Annex F)
+--
+--GNATCHECK RULE:
+
++RRestrictions: No_Dependence => Ada.Decimal,
+                No_Dependence => Ada.Text_IO.Editing,
+                No_Dependence => Ada.Wide_Text_IO.Editing
+
+-- Comment: Do we need something for Machine_Radix Clause ??
+--==============================================================================
+--#10
+--REQUIREMENT:
+--Numerics (ANSI/ISO/IEC 8652:1995, Annex G)
+--
+--GNATCHECK RULES: 
+--
++RRestrictions: No_Dependence =>
+                Ada.Numerics.Generic_Complex_Types,
+                -- ? Ada.Numerics.Generic_Complex_Elementary_Functions
+                No_Dependence => Ada.Text_IO.Complex_IO
+
++RForbidden_Attributes: Model_Mantissa,
+                        Model_Emin,
+                        Safe_First,
+                        Safe_Last,
+                        Model
+
+--==============================================================================
+--# 11
+--REQUIREMENT:
+--The profile includes defined maximum buffer size for Unbounded-Length String
+--Handling (ANSI/ISO/IEC 8652:1995, Annex A.4.5).
+--Note: The recommended minimum value for defined size is 120 bytes.
+--
+--COMMENT: It cannot be checked by an automated tool
+--
+--GNATCHECK RULE: None
+--
+--==============================================================================
+--# 12
+--REQUIREMENT:
+--The profile includes an Ada95 Task's use of secondary stack (if required)
+--limited to a defined size.
+--Note: The recommended minimum value for defined size is 4096 bytes.
+--
+--COMMENT: It cannot be checked by an automated tool
+--
+--GNATCHECK RULE: None
+--
+--==============================================================================
+--#13
+--REQUIREMENT:
+--The profile includes the subset of functionality defined for Predefined
+--Language Environment (ANSI/ISO/IEC 8652:1995, Annex A) based on the above and
+--Ravenscar Ada95 subset profile exclusions.
+--
+--GNATCHECK RULE:
+
++RRestrictions: 
+    Max_Entry_Queue_Length => 1,
+    -- No task can be queued on a protected entry.
+    Max_Protected_Entries => 1,
+    Max_Task_Entries => 0,
+    -- No rendezvous statements are allowed.
+    No_Abort_Statements,
+    No_Dynamic_Attachment,
+    No_Dynamic_Priorities,
+    No_Implicit_Heap_Allocations,
+    No_Local_Protected_Objects,
+    No_Local_Timing_Events,
+    No_Protected_Type_Allocators,
+    No_Relative_Delay,
+    No_Requeue_Statements,
+    No_Select_Statements,
+    No_Specific_Termination_Handlers,
+    No_Task_Allocators,
+    No_Task_Hierarchy,
+    No_Task_Termination,
+    Simple_Barriers
+
+-- The Ravenscar profile also includes the following restrictions that 
+-- specify that there are no semantic dependences on the corresponding 
+-- predefined packages:
+
++RRestrictions:
+    No_Dependence => Ada.Asynchronous_Task_Control,
+    No_Dependence => Ada.Calendar,
+    No_Dependence => Ada.Execution_Time.Group_Budget,
+    No_Dependence => Ada.Execution_Time.Timers,
+    No_Dependence => Ada.Task_Attributes,
+    No_Dependence => System.Multiprocessors.Dispatching_Domains
+--
+--==============================================================================
+--# 14
+--REQUIREMENT:
+--The profile includes the subset of functionality defined for Interfaces to
+--Other Languages (ANSI/ISO/IEC 8652:1995, Annex B) that includes B.1, B.2, and
+--B.3 with the following exceptions:
+--*       Sections B.3.1 and B.3.2
+--
+--COMMENT:
+--
+--GNATCHECK RULE: 
+
++RRestrictions: No_Dependence => Interfaces.C.Strings,
+                No_Dependence => Interfaces.C.Pointers
+--==============================================================================
+--# 15
+--REQUIREMENT:
+--The profile includes the subset of functionality defined for Systems
+--Programming (ANSI/ISO/IEC 8652:1995, Annex C), based on ISO/IEC TR 15942:2000
+--including Interrupts support (ANSI/ISO/IEC 8652:1995, Annex C.3) limited to
+--constants and type definitions associated with Ada.Interrupts with the
+--following exception:
+-- * No Dependencies on package Task attributes (ANSI/ISO/IEC 8652:1995,
+--   Annex C.7.2)
+--
+--COMMENT: I'm afraid the only thing I can understand here is the exception
+--         paragraph, it can easily be implemented with Restrictions rule. But
+--         what does "limited to constants and type definitions associated with
+--         Ada.Interrupts" mean?
+--
+--GNATCHECK RULE: 
+
++RRestrictions: No_Dependence => Ada.Task_Attributes
+
+--==============================================================================
+--# 16
+--REQUIREMENT:
+--The profile includes the subset of functionality defined for Real-Time Systems
+--(ANSI/ISO/IEC 8652:1995, Annex D), based on ISO/IEC TR 15942:2000 including
+--support for monotonic time (ANSI/ISO/IEC 8652:1995, Annex D.8) with the
+--following exceptions:
+-- * No dependencies on package Ada.Calendar (ANSI/ISO/IEC 8652:1995,
+--   Section 9.6)
+-- * No support for relative delay statements (ANSI/ISO/IEC 8652:1995,
+--   Section 9.6)
+--
+--COMMENT:    both exceptions are redundant if they are under the 
+--            Ravenscar profile but will include the restrictions anyway
+--
+--GNATCHECK RULE: 
++RRestrictions:
+    No_Relative_Delay,
+    No_Dependence => Ada.Calendar
+--
+--==============================================================================
+--# 17
+--REQUIREMENT:
+--The requirements associated with this profile include:
+-- 1. Safety Extended Profile UoCs using input/output support (including file
+--    system) shall utilize Ada bindings for the input/output functional
+--    interfaces defined as part of the corresponding FACE Safety Extended
+--    Profile.
+--
+-- 2. Safety Extended Profile UoCs using an Ada 95 Run-Time supplied by the
+--    Operating System shall be restricted to the Programing Language features
+--    listed above.
+--
+-- 3. Safety Extended Profile OSS UoCs providing an Ada 95 Run-Time shall
+--    include the Programing Language features listed above at a minimum.
+--
+--
+--COMMENT: Not sure if there is any checking that needs to be done for this one
+--
+--==============================================================================

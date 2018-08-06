@@ -1,0 +1,3 @@
+Ada 95 Safety profile checkers for applications aligning with FACE (Trademark) Technical Standard.
+
+safety_base and safety_extended are the input for gnatcheck for those respectively profiles.
