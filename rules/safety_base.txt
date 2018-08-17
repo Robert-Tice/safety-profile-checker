@@ -1,283 +1,245 @@
-------------------------------------------------------
--- This contains the gnatcheck rules for violations of
--- FACE (Trademark) Ada 95 safety Base 2.1.1 profile
-------------------------------------------------------
--- Keep to Ada 95 language profile
--- For now use -gnat95 switch
---+R Warnings:gnat95 - ???
+-------------------------------------------------------
+--  This contains the gnatcheck rules for violations of
+--  FACE (Trademark) Ada 95 safety Base 2.1.1 profile
+-------------------------------------------------------
 
---# 1
---REQUIREMENT:
---Component use of implementation-defined pragmas (ANSI/ISO/IEC 8652:1995,
---Section 2.8 (14)) for data structure compositions on FACE Interfaces.
---
---Note:    All other uses of implementation-defined pragma directives are
---         permitted.
---
---Note:    Support for pragma directives are compiler implementation-dependent.
---         A compiler ignores pragma directives it does not recognize.
---
---Note:    Use of the language-defined pragmas (e.g., pragma priority,
---         pragma interface, pragma export, etc.) defined throughtout the
---         Ada 95 Reference Manual is permitted.
---
--- COMMENT: Not sure what this exactly means. Could mean use of things 
--- that may change the layout of records in a non-portable way like use 
--- of pragma Scalar_Storage_Order, maybe Object_Size'. So would only 
--- worry about implementation pragmas that can only exist for an record 
--- declaration or components of a record ?
--- Needs further clarification.
---
---GNATCHECK RULE:
++R : ADA_SAFETY_BASE_ADA95 : 
+   Forbidden_Pragmas : ADA_SAFETY_BASE_05,
+                       ADA_SAFETY_BASE_2005,
+                       ADA_SAFETY_BASE_12,
+                       ADA_SAFETY_BASE_2012,
+                       Extensions_Allowed
 
-+RForbidden_Pragmas:Scalar_Storage_Order
+-------------------------------------------------------------------------------
 
---==============================================================================
---# 2
---REQUIREMENT: Asynchronous Transfer of Control (ANSI/ISO/IEC 8652:1995, Section
---9.7.4) and dependencies
+--  Component use of implementation-defined pragmas (ANSI/ISO/IEC 8652:1995,
+--  Section 2.8 (14)) for data structure compositions on FACE Interfaces.
 --
---GNATCHECK RULE: 
+--  Note:    All other uses of implementation-defined pragma directives are
+--           permitted.
 --
--- Although covered by Ravenscar restrictions we specify the rules anyway
+--  Note:    Support for pragma directives are compiler 
+--           implementation-dependent. A compiler ignores pragma directives it 
+--           does not recognize.
+--
+--  Note:    Use of the language-defined pragmas (e.g., pragma priority,
+--           pragma interface, pragma export, etc.) defined throughtout the
+--           Ada 95 Reference Manual is permitted.
 
-+RRestrictions:
-    No_Select_Statements,
-    No_Abort_Statements
++R : ADA_SAFETY_BASE_IMPLEMENTATION_PRAGMAS : 
+   Forbidden_Pragmas : Component_Alignment, 
+                       Default_Scalar_Storage_Order,
+                       Float_Representation,
+                       Implicit_Packing,
+                       No_Component_Reordering,
+                       Optimize_Alignment,
+                       Scalar_Storage_Order,
+                       Volatile_Full_Access
 
---==============================================================================
---# 3
---REQUIREMENT:
---Exception handling (ANSI/ISO/IEC 8652:1995, Section 11) - limited to
---handling predefined exceptions using a single default handler
---(i.e., pragma Restrictions No_Exception_Handlers)
---
---GNATCHECK RULE:
-+RRestrictions:No_Exception_Handlers
---
---==============================================================================
---# 4 
---REQUIREMENT:
---Storage Management (ANSI/ISO/IEC 8652:1995, Section 13.11) (i.e.
---as excluded by pragma Restrictions No_Allocators) and dependencies
---
---GNATCHECK RULE:
+-------------------------------------------------------------------------------
 
-+RRestrictions:No_Allocators
---==============================================================================
---# 5
---REQUIREMENT: Wide characters, wide strings, and wide text
---
---GNATCHECK RULE: covered except wide text
+--  Asynchronous Transfer of Control (ANSI/ISO/IEC 8652:1995, Section 9.7.4) 
+--  and dependencies
+ 
++R : ADA_SAFETY_BASE_ASYNC_CTL :
+   Restrictions : No_Abort_Statements,
+                  No_Select_Statements
+                  
+-------------------------------------------------------------------------------
 
-+RRestrictions:No_Wide_Characters -- Includes checking Wide_Strings
+--  Exception handling (ANSI/ISO/IEC 8652:1995, Section 11) - limited to
+--  handling predefined exceptions using a single default handler
+--  (i.e., pragma Restrictions No_Exception_Handlers)
 
--- Comment: Need to understand what is meant by Wide Text since it is
--- not definied in Ada 95
++R : ADA_SAFETY_BASE_EXCEPTION : 
+   Restrictions : No_Exception_Handlers
 
---
---==============================================================================
---# 6
---REQUIREMENT: String Handling (ANSI/ISO/IEC 8652:1995 Annex A.4)
+-------------------------------------------------------------------------------
 
-+RRestrictions:No_Dependence => Ada.Strings,
-               No_Dependence => Ada.Strings.Maps,
-               No_Dependence => Ada.Strings.Fixed,
-               No_Dependence => Ada.Strings.Bounded,
-               No_Dependence => Ada.Strings.Unbounded,
-               No_Dependence => Ada.Strings.Maps.Constants,
-               No_Dependence => Ada.Strings.Wide_Maps
---==============================================================================
---# 7
---REQUIREMENT:
---Random Number Generation (ANSI/ISO/IEC 8652:1995, Annex A.5.2)
---
---COMMENT:
---
---GNATCHECK RULE: 
+--  Storage Management (ANSI/ISO/IEC 8652:1995, Section 13.11) (i.e.
+--  as excluded by pragma Restrictions No_Allocators) and dependencies
 
-+RRestrictions:No_Dependence => Ada.Numerics.Float_Random,
-	       No_dependence=> Ada.Numerics.Discrete_Random
---==============================================================================
---# 8
---REQUIREMENT:
---Input/output capabilities (ANSI/ISO/IEC 8652:1995, Section 13.13, and Annex
---A.6, A.7, A.8, A.9, A.10, A.11, A.12, A.13, A.14, and A.15)
---
---GNATCHECK RULE:
---
-+RForbidden_Attributes : Read, Write, Input, Output
++R : ADA_SAFETY_BASE_STORAGE_MGMT :
+   Restrictions : No_Allocators
 
-+RRestrictions: No_Dependence => Ada.Sequential_IO, 
-                No_Dependence => Ada.Direct_IO,
-                No_Dependence => Ada.Storage_IO,
-                No_Dependence => Ada.Text_IO,
-                No_Dependence => Ada.Wide_Text_IO,
-                No_Dependence => Ada.Wide_Wide_Text_IO,
-                No_Dependence => Ada.Streams.Stream_IO,
-                No_Dependence => IO_Exceptions,
-                No_Dependence => Ada.IO_Exceptions,
-                No_Dependence => Ada.Command_Line
+-------------------------------------------------------------------------------
 
--- Comment: Is it a bug that we need to specify both Ada.Text_IO and Text_IO ?
---          Open ticket
---==============================================================================
---# 9
---REQUIREMENT:
---Distributed Systems (ANSI/ISO/IEC 8652:1995, Annex E)
---
---GNATCHECK RULES:
---
-+RForbidden_Attributes: Partition_Id,
-                        Version,
-                        Body_Version
+--  Wide characters, wide strings, and wide text
 
-+RForbidden_Pragmas: Shared_Passive,
-                     Remote_Types,
-                     Remote_Call_Interface,
-                     All_Calls_Remote,
-                     Asynchronous
++R : ADA_SAFETY_BASE_WIDE_TEXT :
+   Restrictions : No_Wide_Characters
++R : ADA_SAFETY_BASE_WIDE_TEXT :
+   Restrictions : No_Dependence => Ada.Wide_Text_IO,
+                  No_Dependence => Ada.Wide_Wide_Text_IO             
+ 
+-------------------------------------------------------------------------------
 
-+R Restrictions: No_Dependence => System.RPC
+--  String Handling (ANSI/ISO/IEC 8652:1995 Annex A.4)
 
---==============================================================================
---# 10
---REQUIREMENT:
---Information Systems (ANSI/ISO/IEC 8652:1995, Annex F)
---
---GNATCHECK RULE:
++R : ADA_SAFETY_BASE_STRING_HANDLING :
+   Restrictions : No_Dependence => Ada.Strings,
+                  No_Dependence => Ada.Strings.Bounded,
+                  No_Dependence => Ada.Strings.Fixed,
+                  No_Dependence => Ada.Strings.Maps,
+                  No_Dependence => Ada.Strings.Maps.Constants,
+                  No_Dependence => Ada.Strings.Unbounded,
+                  No_Dependence => Ada.Strings.Wide_Maps
 
-+RRestrictions: No_Dependence => Ada.Decimal,
-                No_Dependence => Ada.Text_IO.Editing,
-                No_Dependence => Ada.Wide_Text_IO.Editing
+-------------------------------------------------------------------------------
 
--- Comment: Do we need something for Machine_Radix Clause ??
---==============================================================================
---#11
---REQUIREMENT:
---Numerics (ANSI/ISO/IEC 8652:1995, Annex G)
---
---GNATCHECK RULES: 
---
-+RRestrictions: No_Dependence =>
-                Ada.Numerics.Generic_Complex_Types,
-                -- ? Ada.Numerics.Generic_Complex_Elementary_Functions
-                No_Dependence => Ada.Text_IO.Complex_IO,
-		No_Dependence => Ada.Numerics.Generic_Real_Arrays,
-                No_Dependence => Ada.Numerics.Generic_Complex_A
+--  Random Number Generation (ANSI/ISO/IEC 8652:1995, Annex A.5.2)
 
-+RForbidden_Attributes: Model_Mantissa,
-                        Model_Emin,
-                        Safe_First,
-                        Safe_Last,
-                        Model
++R : ADA_SAFETY_BASE_RANDOM_NUMBERS :
+   Restrictions : No_Dependence => Ada.Numerics.Float_Random,
+	                No_dependence => Ada.Numerics.Discrete_Random
 
---==============================================================================
---#12
---REQUIREMENT:
---The profile includes the subset of functionality defined for Predefined
---Language Environment (ANSI/ISO/IEC 8652:1995, Annex A) based on the above and
---Ravenscar Ada95 subset profile exclusions.
---
---GNATCHECK RULE:
+-------------------------------------------------------------------------------
 
-+RRestrictions: 
-    Max_Entry_Queue_Length => 1,
-    -- No task can be queued on a protected entry.
-    Max_Protected_Entries => 1,
-    Max_Task_Entries => 0,
-    -- No rendezvous statements are allowed.
-    No_Abort_Statements,
-    No_Dynamic_Attachment,
-    No_Dynamic_Priorities,
-    No_Implicit_Heap_Allocations,
-    No_Local_Protected_Objects,
-    No_Local_Timing_Events,
-    No_Protected_Type_Allocators,
-    No_Relative_Delay,
-    No_Requeue_Statements,
-    No_Select_Statements,
-    No_Specific_Termination_Handlers,
-    No_Task_Allocators,
-    No_Task_Hierarchy,
-    No_Task_Termination,
-    Simple_Barriers
+--  Input/output capabilities (ANSI/ISO/IEC 8652:1995, Section 13.13, and Annex
+--  A.6, A.7, A.8, A.9, A.10, A.11, A.12, A.13, A.14, and A.15)
 
--- The Ravenscar profile also includes the following restrictions that 
--- specify that there are no semantic dependences on the corresponding 
--- predefined packages:
++R : ADA_SAFETY_BASE_IO : 
+   Forbidden_Attributes : Read, Write, Input, Output
 
-+RRestrictions:
-    No_Dependence => Ada.Asynchronous_Task_Control,
-    No_Dependence => Ada.Calendar,
-    No_Dependence => Ada.Execution_Time.Group_Budget,
-    No_Dependence => Ada.Execution_Time.Timers,
-    No_Dependence => Ada.Task_Attributes,
-    No_Dependence => System.Multiprocessors.Dispatching_Domains
---
---==============================================================================
---# 13
---REQUIREMENT:
---The profile includes the subset of functionality defined for Interfaces to
---Other Languages (ANSI/ISO/IEC 8652:1995, Annex B) that includes B.1, B.2, and
---B.3 with the following exceptions:
---*       Sections B.3.1 and B.3.2
---
---COMMENT:
---
---GNATCHECK RULE: 
++R : ADA_SAFETY_BASE_IO : 
+   Restrictions : No_Dependence => Ada.Command_Line,
+                  No_Dependence => Ada.Direct_IO,
+                  No_Dependence => Ada.Float_Wide_Text_IO,
+                  No_Dependence => Ada.Integer_Wide_Text_IO,
+                  No_Dependence => Ada.IO_Exceptions,
+                  No_Dependence => Ada.Long_Float_Wide_Text_IO,
+                  No_Dependence => Ada.Long_Integer_Wide_Text_IO,
+                  No_Dependence => Ada.Sequential_IO,
+                  No_Dependence => Ada.Streams.Stream_IO,
+                  No_Dependence => Ada.Storage_IO,
+                  No_Dependence => Ada.Text_IO,
+                  No_Dependence => Ada.Text_IO.Text_Streams,
+                  No_Dependence => Ada.Wide_Text_IO,
+                  No_Dependence => Ada.Wide_Text_IO.Text_Streams,
+                  No_Dependence => Ada.Wide_Text_IO.Integer_IO,
+                  No_Dependence => Ada.Wide_Text_IO.Float_IO,
+                  No_Dependence => Ada.Wide_Wide_Text_IO
+                 
+-------------------------------------------------------------------------------
 
-+RRestrictions: No_Dependence => Interfaces.C.Strings,
-                No_Dependence => Interfaces.C.Pointers
---==============================================================================
---# 14
---REQUIREMENT:
---The profile includes the subset of functionality defined for Systems
---Programming (ANSI/ISO/IEC 8652:1995, Annex C), based on ISO/IEC TR 15942:2000
---including Interrupts support (ANSI/ISO/IEC 8652:1995, Annex C.3) limited to
---constants and type definitions associated with Ada.Interrupts with the
---following exception:
--- * No Dependencies on package Task attributes (ANSI/ISO/IEC 8652:1995,
---   Annex C.7.2)
---
---GNATCHECK RULE: 
+--  Distributed Systems (ANSI/ISO/IEC 8652:1995, Annex E)
 
-+RRestrictions: No_Dependence => Ada.Task_Attributes
++R : ADA_SAFETY_BASE_DISTRIBUTED_SYSTEMS :
+   Forbidden_Attributes : Body_Version,
+                          Partition_Id,
+                          Version,
+                          
 
---==============================================================================
---# 15
---REQUIREMENT:
---The profile includes the subset of functionality defined for Real-Time Systems
---(ANSI/ISO/IEC 8652:1995, Annex D), based on ISO/IEC TR 15942:2000 including
---support for monotonic time (ANSI/ISO/IEC 8652:1995, Annex D.8) with the
---following exceptions:
--- * No dependencies on package Ada.Calendar (ANSI/ISO/IEC 8652:1995,
---   Section 9.6)
--- * No support for relative delay statements (ANSI/ISO/IEC 8652:1995,
---   Section 9.6)
++R : ADA_SAFETY_BASE_DISTRIBUTED_SYSTEMS :
+   Forbidden_Pragmas : All_Calls_Remote,
+                       Asynchronous,
+                       Remote_Call_Interface,
+                       Remote_Types,
+                       Shared_Passive
+
++R : ADA_SAFETY_BASE_DISTRIBUTED_SYSTEMS :
+   Restrictions : No_Dependence => System.RPC
+
+-------------------------------------------------------------------------------
+
+--  Information Systems (ANSI/ISO/IEC 8652:1995, Annex F)
+
++R : ADA_SAFETY_BASE_INFO_SYSTEMS :
+   Forbidden_Attributes : Machine_Radix
+
++R : ADA_SAFETY_BASE_INFO_SYSTEMS :
+   Restrictions : No_Dependence => Ada.Decimal,
+                  No_Dependence => Ada.Text_IO.Editing,
+                  No_Dependence => Ada.Wide_Text_IO.Editing
+
+-------------------------------------------------------------------------------
+
+--  Numerics (ANSI/ISO/IEC 8652:1995, Annex G)
+
++R : ADA_SAFETY_BASE_NUMERICS :
+   Restrictions : No_Dependence => Ada.Numerics.Generic_Complex_A,
+                  No_Dependence => Ada.Numerics.Generic_Complex_Elementary_Functions,
+                  No_Dependence => Ada.Numerics.Generic_Complex_Types,
+		              No_Dependence => Ada.Numerics.Generic_Real_Arrays,
+                  No_Dependence => Ada.Text_IO.Complex_IO,
+                  No_Dependence => Ada.Wide_Text_IO.Complex_IO
+
++R : ADA_SAFETY_BASE_NUMERICS :
+   Forbidden_Attributes : Model,
+                          Model_Emin,
+                          Model_Mantissa,
+                          Safe_First,
+                          Safe_Last
+                        
+
+-------------------------------------------------------------------------------
+
+--  The profile includes the subset of functionality defined for Predefined
+--  Language Environment (ANSI/ISO/IEC 8652:1995, Annex A) based on the above and
+--  Ravenscar Ada95 subset profile exclusions.
+
++R : ADA_SAFETY_BASE_RAVENSCAR :
+   Restrictions : No_Abort_Statements,
+                  No_Dynamic_Attachment,
+                  No_Dynamic_Priorities,
+                  No_Implicit_Heap_Allocations,
+                  No_Local_Protected_Objects,
+                  No_Local_Timing_Events,
+                  No_Protected_Type_Allocators,
+                  No_Relative_Delay,
+                  No_Requeue_Statements,
+                  No_Select_Statements,
+                  No_Specific_Termination_Handlers,
+                  No_Task_Allocators,
+                  No_Task_Hierarchy,
+                  No_Task_Termination,
+                  Simple_Barriers,
+                  Max_Entry_Queue_Length => 1,
+                  Max_Protected_Entries => 1,
+                  Max_Task_Entries => 0,
+                  No_Dependence => Ada.Asynchronous_Task_Control,
+                  No_Dependence => Ada.Calendar,
+                  No_Dependence => Ada.Execution_Time.Group_Budget,
+                  No_Dependence => Ada.Execution_Time.Timers,
+                  No_Dependence => Ada.Task_Attributes,
+                  No_Dependence => System.Multiprocessors.Dispatching_Domains
+
+-------------------------------------------------------------------------------
+
+--  The profile includes the subset of functionality defined for Interfaces to 
+--  Other Languages (ANSI/ISO/IEC 8652:1995, Annex B) that is limited to 
+--  constant and type definitions associated with Interfaces
+
+--  Nothing to do here
+
+-------------------------------------------------------------------------------
+
+--  The profile includes the subset of functionality defined for Systems
+--  Programming (ANSI/ISO/IEC 8652:1995, Annex C), based on ISO/IEC TR 15942:2000
+--  including Interrupts support (ANSI/ISO/IEC 8652:1995, Annex C.3) limited to
+--  constants and type definitions associated with Ada.Interrupts with the
+--  following exception:
 --
---COMMENT:    both exceptions are redundant if they are under the 
---            Ravenscar profile but will include the restrictions anyway
+--   * No Dependencies on package Task attributes (ANSI/ISO/IEC 8652:1995,
+--     Annex C.7.2)
+
++R : ADA_SAFETY_BASE_NO_TASK_ATTR :
+   Restrictions : No_Dependence => Ada.Task_Attributes
+
+-------------------------------------------------------------------------------
+
+--  The profile includes the subset of functionality defined for Real-Time Systems
+--  (ANSI/ISO/IEC 8652:1995, Annex D), based on ISO/IEC TR 15942:2000 including
+--  support for monotonic time (ANSI/ISO/IEC 8652:1995, Annex D.8) with the
+--  following exceptions:
 --
---GNATCHECK RULE: 
-+RRestrictions:
-    No_Relative_Delay,
-    No_Dependence => Ada.Calendar
---
---==============================================================================
---# 16
---REQUIREMENT:
---The requirements associated with this profile include:
--- 1. Safety Base Profile UoCs using input/output support (including file
---    system) shall utilize Ada bindings for the input/output functional
---    interfaces defined as part of the corresponding FACE Safety Base
---    Profile.
---
--- 2. Safety Base Profile UoCs using an Ada 95 Run-Time supplied by the
---    Operating System shall be restricted to the Programing Language features
---    listed above.
---
--- 3. Safety Base Profile OSS UoCs providing an Ada 95 Run-Time shall
---    include the Programing Language features listed above at a minimum.
---
--- COMMENT: Not sure if something should be automatically checked
+--  * No dependencies on package Ada.Calendar (ANSI/ISO/IEC 8652:1995,
+--    Section 9.6)
+--  * No support for relative delay statements (ANSI/ISO/IEC 8652:1995,
+--    Section 9.6)
+
++R : ADA_SAFETY_BASE_REAL_TIME :
+   Restrictions : No_Dependence => Ada.Calendar,
+                  No_Relative_Delay
+                  
+-------------------------------------------------------------------------------
