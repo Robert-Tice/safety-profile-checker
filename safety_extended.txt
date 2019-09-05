@@ -151,7 +151,7 @@
    Restrictions : No_Dependence => Ada.Numerics.Generic_Complex_A,
                   No_Dependence => Ada.Numerics.Generic_Complex_Elementary_Functions,
                   No_Dependence => Ada.Numerics.Generic_Complex_Types,
-                      No_Dependence => Ada.Numerics.Generic_Real_Arrays,
+                  No_Dependence => Ada.Numerics.Generic_Real_Arrays,
                   No_Dependence => Ada.Text_IO.Complex_IO,
                   No_Dependence => Ada.Wide_Text_IO.Complex_IO
 
