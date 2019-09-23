@@ -42,8 +42,9 @@
 --  and dependencies
 
 +R : ADA_SAFETY_BASE_ASYNC_CTL :
-   Restrictions : No_Abort_Statements,
-                  No_Select_Statements
+   Restrictions : Max_Asynchronous_Select_Nesting => 0,
+                  No_Abort_Statements
+--                  No_Select_Statements
 
 -------------------------------------------------------------------------------
 
@@ -91,7 +92,7 @@
 
 +R : ADA_SAFETY_BASE_RANDOM_NUMBERS :
    Restrictions : No_Dependence => Ada.Numerics.Float_Random,
-	                No_dependence => Ada.Numerics.Discrete_Random
+                  No_dependence => Ada.Numerics.Discrete_Random
 
 -------------------------------------------------------------------------------
 
