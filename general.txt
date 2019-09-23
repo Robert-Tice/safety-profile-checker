@@ -1,0 +1,118 @@
+--------------------------------------------------------
+--  This contains the gnatcheck rules for violations of
+--  FACE (Trademark) 3.0 Ada 2102 General Capability Set
+--------------------------------------------------------
+
++R : ADA_GENERAL_ADA2012 :
+   Forbidden_Pragmas : Extensions_Allowed
+
+--  Component use of implementation-defined pragmas (ANSI/ISO/IEC 8652:2012,
+--  Section 2.8 (14)) for data structure compositions on FACE Interfaces.
+
++R : ADA_GENERAL_IMPLEMENTATION_PRAGMAS :
+   Forbidden_Pragmas : Component_Alignment,
+                       Default_Scalar_Storage_Order,
+                       Float_Representation,
+                       Implicit_Packing,
+                       No_Component_Reordering,
+                       Optimize_Alignment,
+                       Scalar_Storage_Order,
+                       Volatile_Full_Access
+
+-------------------------------------------------------------------------------
+
+--  Asynchronous Transfer of Control (ANSI/ISO/IEC 8652:2012, Section 9.7.4)
+
++R : ADA_GENERAL_ASYNC_CTL :
+   Restrictions : Max_Asynchronous_Select_Nesting => 0
+                  
+
+-------------------------------------------------------------------------------
+
+--  Wide characters, wide strings, and wide text
+
++R : ADA_GENERAL_WIDE_TEXT :
+   Restrictions : No_Wide_Characters
+
++R : ADA_GENERAL_WIDE_TEXT :
+   Restrictions : No_Dependence => Ada.Wide_Text_IO,
+                  No_Dependence => Ada.Wide_Wide_Text_IO
+
+
+-------------------------------------------------------------------------------
+
+--  Input/output capabilities (ANSI/ISO/IEC 8652:2012, Section 13.13, and Annex
+--  A.6, A.7, A.8, A.9, A.10, A.11, A.12, A.13, A.14, and A.15) on external
+--  files requiring external hardware or interfaces to external hardware.
+
++R : ADA_GENERAL_IO :
+   Forbidden_Attributes : Read, Write, Input, Output
+
++R : ADA_GENERAL_IO :
+   Restrictions : No_Dependence => Ada.Command_Line,
+                  No_Dependence => Ada.Direct_IO,
+                  No_Dependence => Ada.Float_Wide_Text_IO,
+                  No_Dependence => Ada.Integer_Wide_Text_IO,
+                  -- No_Dependence => Ada.IO_Exceptions,
+                  No_Dependence => Ada.Long_Float_Wide_Text_IO,
+                  No_Dependence => Ada.Long_Integer_Wide_Text_IO,
+                  No_Dependence => Ada.Sequential_IO,
+                  -- No_Dependence => Ada.Streams.Stream_IO,
+                  -- No_Dependence => Ada.Storage_IO,
+                  -- No_Dependence => Ada.Text_IO,
+                  -- No_Dependence => Ada.Text_IO.Text_Streams,
+                  No_Dependence => Ada.Wide_Text_IO,
+                  No_Dependence => Ada.Wide_Text_IO.Text_Streams,
+                  No_Dependence => Ada.Wide_Text_IO.Integer_IO,
+                  No_Dependence => Ada.Wide_Text_IO.Float_IO,
+                  No_Dependence => Ada.Wide_Wide_Text_IO
+
+-------------------------------------------------------------------------------
+
+--  Distributed Systems (ANSI/ISO/IEC 8652:2012, Annex E)
+
++R : ADA_GENERAL_DISTRIBUTED_SYSTEMS :
+   Forbidden_Attributes : Body_Version,
+                          Partition_Id,
+                          Version,
+
+
++R : ADA_GENERAL_DISTRIBUTED_SYSTEMS :
+   Forbidden_Pragmas : All_Calls_Remote,
+                       Asynchronous,
+                       Remote_Call_Interface,
+                       Remote_Types,
+                       Shared_Passive
+
++R : ADA_GENERAL_DISTRIBUTED_SYSTEMS :
+   Restrictions : No_Dependence => System.RPC
+
+-------------------------------------------------------------------------------
+
+--  Information Systems (ANSI/ISO/IEC 8652:2012, Annex F)
+
++R : ADA_GENERAL_INFO_SYSTEMS :
+   Forbidden_Attributes : Machine_Radix
+
++R : ADA_GENERAL_INFO_SYSTEMS :
+   Restrictions : No_Dependence => Ada.Decimal,
+                  No_Dependence => Ada.Text_IO.Editing,
+                  No_Dependence => Ada.Wide_Text_IO.Editing
+
+-------------------------------------------------------------------------------
+
+--  Dynamic subtype predicates
+
++R : ADA_GENERAL_PRE_POST :
+   Restrictions : No_Specification_of_Aspect => Dynamic_Predicate
+   --  Note that GNAT defines an aspect named "Predicate" that can have a subtype
+   --  that is either dynamic or static.
+
+--  Preconditions and postconditions
+
++R : ADA_GENERAL_PRE_POST :
+   Restrictions : No_Specification_of_Aspect => Pre,
+                  No_Specification_of_Aspect => Post
+                  
+
+
