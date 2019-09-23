@@ -41,7 +41,7 @@
 --  Asynchronous Transfer of Control (ANSI/ISO/IEC 8652:1995, Section 9.7.4) 
 --  and dependencies
 
-+R : ADA_SAFETY_BASE_ASYNC_CTL :
++R : ADA_SAFETY_EXT_ASYNC_CTL :
    Restrictions : Max_Asynchronous_Select_Nesting => 0
 
 -------------------------------------------------------------------------------
